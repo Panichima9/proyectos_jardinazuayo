@@ -1,0 +1,119 @@
+---
+title: "Reporte transacciones canales virtuales COAC JA"
+author: "Omar Pinos"
+date: "2023-08-18"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r librerias, echo=FALSE, message=FALSE, warning=FALSE, comment=""}
+
+library(openxlsx)
+library(lubridate)
+library(ggplot2)
+library(scales)
+library(dygraphs)
+library(reshape2)
+library(scales)
+library(animation)
+library(gganimate)
+library(forecast)
+library(dplyr)
+
+```
+```{r basededatos2, echo=FALSE, message=FALSE, warning=FALSE, comment=""}
+
+datos <- read.xlsx("F://Proyecto final módulo 2 Análisis exploratorio/reporte transacciones canales virtuales JA.xlsx", detectDates = T)
+
+datosagrupados <- datos %>%
+                  select(c(-5))
+
+magrupados <- melt(datosagrupados, id.vars = c("Periodo"))
+
+```
+```{r basededatitos, echo=FALSE, message=FALSE, warning=FALSE, comment=""}
+
+datos <- read.xlsx("F://Proyecto final módulo 2 Análisis exploratorio/reporte transacciones canales virtuales JA.xlsx", detectDates = T)
+
+datosagrupados <- datos %>%
+                  select(c(-5))
+
+magrupados <- melt(datosagrupados, id.vars = c("Periodo"))
+
+```
+```{r graficolineas, echo=FALSE, message=FALSE, warning=FALSE, comment="", fig.width=12, fig.height=7, fig.align='center'}
+
+ggplot(data = magrupados,
+       aes(x=Periodo, y=value))+
+       geom_line()+facet_wrap(.~variable, scales = "free")+
+       theme(text = element_text(size=12))
+
+```
+
+```{r graficodinamico, echo=FALSE, message=FALSE, warning=FALSE, comment="", fig.width=10, fig.height=5, fig.align='center', results='asis'}
+
+datosdy <- datos %>%
+           select(Corresponsales,JA.Movil,JA.Virtual,ATMs,JA.Pagos,Quiosco,Cashdro)
+
+tsdatos <- ts(datosdy,start = c(2019,1), frequency = 12)
+
+dygraph(tsdatos, main = "Evolución de las transacciones virtuales por canal",
+        xlab = "Periodo", ylab = "Número de transacciones")%>%
+        dyOptions(fillGraph = T, fillAlpha = 0.04,
+                  drawPoints = T, pointSize = 3)
+
+```
+
+
+
+
+
+Las transacciones virtuales de la COAC JA tienen una tendencia de crecimiento positivo. 
+
+Estos son los resultados proyectados de las transacciones mensuales 5 meses a partir del mes de julio 2023, de este modo el modelo ARIMA proyecta al diciembre del 2023 llegar a un total de 1.135.536 transacciones.
+
+
+```{r otrascosas, echo=FALSE, message=FALSE, warning=FALSE, comment="", fig.width=10, fig.height=5, fig.align='center', results='asis'}
+
+modelo <- auto.arima(datos$Total.transacciones.virtuales)
+fmodelo <- forecast(modelo,5)
+autoplot(fmodelo)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
